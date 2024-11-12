@@ -73,7 +73,7 @@ func recordRegisterValue(client influxdb2.Client, register int, value int64) {
 
 	org := "azaurus"
 	bucket := "modbus"
-	writeAPI := client.WriteAPIBlocking(org, bucket)
+	writeAPI := client.WriteAPI(org, bucket)
 	tags := map[string]string{
 		"holding_register": strconv.Itoa(register),
 	}
@@ -82,11 +82,9 @@ func recordRegisterValue(client influxdb2.Client, register int, value int64) {
 	}
 	name := fmt.Sprintf("holding_register_%d", register)
 	point := write.NewPoint(name, tags, fields, time.Now())
-	time.Sleep(100 * time.Millisecond)
 
-	if err := writeAPI.WritePoint(context.Background(), point); err != nil {
-		log.Fatal(err)
-	}
+	writeAPI.WritePoint(point)
+
 }
 
 func updateRegister(ctx context.Context, client *modbus.ModbusClient, influxClient influxdb2.Client, register int, wg *sync.WaitGroup) {
